@@ -14,6 +14,7 @@ class JokeList extends Component {
 
     this.generateNewJokes = this.generateNewJokes.bind(this)
     this.vote = this.vote.bind(this)
+    this.resetVotes = this.resetVotes.bind(this)
   }
 
   /* at mount, get jokes */
@@ -67,6 +68,13 @@ class JokeList extends Component {
     }))
   }
 
+  /* empty joke list and then call getJokes */
+  resetVotes() {
+    this.setState(st => ({
+      jokes: st.jokes.map(j => ({ ...j, votes: 0 }))
+    }))
+  }
+
   /* render: either loading spinner or list of sorted jokes. */
 
   render() {
@@ -76,6 +84,9 @@ class JokeList extends Component {
       <div className="JokeList">
         <button className="JokeList-getmore" onClick={this.generateNewJokes}>
           Get New Jokes
+        </button>
+        <button className="JokeList-reset" onClick={this.resetVotes}>
+          Reset Votes
         </button>
 
         {sortedJokes.map(j => (
