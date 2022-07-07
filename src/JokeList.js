@@ -87,6 +87,12 @@ class JokeList extends Component {
             vote={this.vote}
           />
         ))}
+
+        {sortedJokes.length < this.props.numJokesToGet ? (
+          <div className="loading">
+            <i className="fas fa-4x fa-spinner fa-spin" />
+          </div>
+        ) : null}
       </div>
     )
   }
