@@ -10,8 +10,9 @@ class JokeList extends Component {
 
   constructor(props) {
     super(props)
-    this.state = { jokes: [] }
-
+    this.state = {
+      jokes: []
+    }
     this.generateNewJokes = this.generateNewJokes.bind(this)
     this.vote = this.vote.bind(this)
     this.resetVotes = this.resetVotes.bind(this)
@@ -31,22 +32,23 @@ class JokeList extends Component {
 
   async getJokes() {
     let jokes = this.state.jokes
-    let seenJokes = new Set()
+    let seenJokes = new Set(jokes.map(j => j.id))
     try {
+      // load jokes one at a time, adding not-yet-seen jokes
       while (jokes.length < this.props.numJokesToGet) {
         let res = await axios.get('https://icanhazdadjoke.com', {
           headers: { Accept: 'application/json' }
         })
-        let { status, ...jokeObj } = res.data
+        let { status, ...joke } = res.data
 
-        if (!seenJokes.has(jokeObj.id)) {
-          seenJokes.add(jokeObj.id)
-          jokes.push({ ...jokeObj, votes: 0 })
+        if (!seenJokes.has(joke.id)) {
+          seenJokes.add(joke.id)
+          jokes.push({ ...joke, votes: 0 })
         } else {
           console.error('duplicate found!')
         }
       }
-      this.setState(jokes)
+      this.setState({ jokes })
     } catch (e) {
       console.log(e)
     }
@@ -55,7 +57,7 @@ class JokeList extends Component {
   /* empty joke list and then call getJokes */
 
   generateNewJokes() {
-    this.setState([])
+    this.setState(st => ({ jokes: st.jokes.filter(j => j.locked) }))
   }
 
   /* change vote for this id by delta (+1 or -1) */
@@ -68,7 +70,7 @@ class JokeList extends Component {
     }))
   }
 
-  /* empty joke list and then call getJokes */
+  /* reset all votes to 0 */
   resetVotes() {
     this.setState(st => ({
       jokes: st.jokes.map(j => ({ ...j, votes: 0 }))
